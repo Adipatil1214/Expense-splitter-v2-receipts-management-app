@@ -1,12 +1,9 @@
 import express from "express";
-import multer from "multer";
-import { uploadExpense, getExpenses } from "../controllers/expenseController.js";
+import { uploadExpense, getExpenses, getStats } from "../controllers/expenseController.js";
 import { protect } from "../middleware/authMiddleware.js";
-import { getStats } from "../controllers/expenseController.js";
+import { upload } from "../config/cloudinary.js";
 
 const router = express.Router();
-
-const upload = multer({ dest: "uploads/" });
 
 // upload receipt
 router.post("/upload", protect, upload.single("receipt"), uploadExpense);
