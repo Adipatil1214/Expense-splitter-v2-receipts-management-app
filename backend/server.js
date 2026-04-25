@@ -13,8 +13,13 @@ dotenv.config();
 
 const app = express();
 
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://expense-splitter-v2-receipts-management-2hqufj8w6.vercel.app"
+];
+
 app.use(cors({
-  origin: "https://expense-splitter-v2-receipts-manage.vercel.app/",
+  origin: allowedOrigins,
   credentials: true
 }));
 app.use(express.json());
