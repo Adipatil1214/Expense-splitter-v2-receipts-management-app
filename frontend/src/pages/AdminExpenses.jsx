@@ -6,7 +6,7 @@ function AdminExpenses() {
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState({});
   const [filter, setFilter] = useState("pending"); // 👈 default filter
-  const [selectedImage, setSelectedImage] = useState(null);
+  const [viewImage, setViewImage] = useState(null);
   const fetchData = async () => {
     const res = await API.get("/admin/expenses");
     setData(res.data);
@@ -43,9 +43,7 @@ function AdminExpenses() {
 
   // 🔥 FILTER LOGIC
   const filteredData =
-    filter === "all"
-      ? data
-      : data.filter((e) => e.status === filter);
+    filter === "all" ? data : data.filter((e) => e.status === filter);
 
   return (
     <div>
@@ -74,7 +72,6 @@ function AdminExpenses() {
         <tbody>
           {filteredData.map((e) => (
             <tr key={e._id}>
-              
               {/* USER */}
               <td>{e.user?.name}</td>
 
@@ -129,8 +126,8 @@ function AdminExpenses() {
                     e.status === "approved"
                       ? "green"
                       : e.status === "rejected"
-                      ? "red"
-                      : "orange",
+                        ? "red"
+                        : "orange",
                   fontWeight: "bold",
                 }}
               >
@@ -166,14 +163,42 @@ function AdminExpenses() {
                     <button onClick={() => updateStatus(e._id, "rejected")}>
                       ✖
                     </button>
+                    <button
+                      onClick={() =>
+                        setViewImage(e.imagePath.replace(/\\/g, "/"))
+                      }
+                    >
+                      View
+                    </button>
                   </>
                 )}
               </td>
-
             </tr>
           ))}
         </tbody>
       </table>
+      {/* viewing file  */}
+      {viewImage && (
+  <div style={overlay} onClick={() => setViewImage(null)}>
+    
+    <div style={modal} onClick={(e) => e.stopPropagation()}>
+      
+      <img
+        src={`http://localhost:5000/${viewImage}`}
+        alt="receipt"
+        style={{ maxWidth: "500px", borderRadius: "10px" }}
+      />
+
+      <br /><br />
+
+      <button onClick={() => setViewImage(null)}>
+        Close
+      </button>
+
+    </div>
+
+  </div>
+)}
     </div>
   );
 }
@@ -182,5 +207,23 @@ const table = {
   width: "100%",
   borderCollapse: "collapse",
 };
+const overlay = {
+  position: "fixed",
+  top: 0,
+  left: 0,
+  width: "100%",
+  height: "100%",
+  background: "rgba(0,0,0,0.6)",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  zIndex: 2000
+};
 
+const modal = {
+  background: "white",
+  padding: "20px",
+  borderRadius: "10px",
+  textAlign: "center"
+};
 export default AdminExpenses;
