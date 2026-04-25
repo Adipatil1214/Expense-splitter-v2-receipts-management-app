@@ -211,11 +211,7 @@ function AdminExpenses() {
                     <button onClick={() => updateStatus(e._id, "rejected")}>
                       ✖
                     </button>
-                    <button
-                      onClick={() =>
-                        setViewImage(e.imagePath.replace(/\\/g, "/"))
-                      }
-                    >
+                    <button onClick={() => setViewImage(e.imagePath)}>
                       View
                     </button>
                   </>
@@ -229,7 +225,6 @@ function AdminExpenses() {
       {viewImage && (
         <div style={overlay} onClick={() => setViewImage(null)}>
           <div style={modal} onClick={(e) => e.stopPropagation()}>
-
             <img
               src={viewImage}
               alt="receipt"
