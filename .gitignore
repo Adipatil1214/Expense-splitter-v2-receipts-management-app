@@ -1,0 +1,22 @@
+# Node
+node_modules/
+npm-debug.log
+
+# Env files
+.env
+
+# Logs
+logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build folders
+dist/
+build/
+
+# Optional (frontend)
+frontend/node_modules/
+backend/node_modules/

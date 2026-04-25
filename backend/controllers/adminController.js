@@ -1,0 +1,65 @@
+import Expense from "../models/Expense.js";
+import User from "../models/User.js";
+
+export const getDashboard = async (req, res) => {
+  try {
+    const total = await Expense.countDocuments();
+
+    const approved = await Expense.countDocuments({ status: "approved" });
+    const rejected = await Expense.countDocuments({ status: "rejected" });
+    const pending = await Expense.countDocuments({ status: "pending" });
+    const categoryStats = await Expense.aggregate([
+      {
+        $group: {
+          _id: "$category",
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const recent = await Expense.find()
+      .populate("user", "name")
+      .sort({ createdAt: -1 })
+      .limit(5);
+    res.json({
+      total,
+      approved,
+      rejected,
+      pending,
+      categories: categoryStats,
+      recent,
+    });
+  } catch (err) {
+    res.status(500).json({ msg: err.message });
+  }
+};
+
+// 📋 Get all expenses
+export const getAllExpenses = async (req, res) => {
+  try {
+    const expenses = await Expense.find()
+      .populate("user", "name email")
+      .sort({ createdAt: -1 });
+
+    res.json(expenses);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// ✅ Approve / Reject
+export const updateExpenseStatus = async (req, res) => {
+  try {
+    const { status, amount, vendor, date } = req.body;
+
+    const expense = await Expense.findByIdAndUpdate(
+      req.params.id,
+      { status, amount, vendor, date },
+      { new: true },
+    );
+
+    res.json(expense);
+  } catch (err) {
+    res.status(500).json({ msg: err.message });
+  }
+};

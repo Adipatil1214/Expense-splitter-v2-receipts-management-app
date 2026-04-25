@@ -1,0 +1,186 @@
+import { useEffect, useState } from "react";
+import API from "../services/api";
+
+function AdminExpenses() {
+  const [data, setData] = useState([]);
+  const [editingId, setEditingId] = useState(null);
+  const [form, setForm] = useState({});
+  const [filter, setFilter] = useState("pending"); // 👈 default filter
+  const [selectedImage, setSelectedImage] = useState(null);
+  const fetchData = async () => {
+    const res = await API.get("/admin/expenses");
+    setData(res.data);
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const updateStatus = async (id, status) => {
+    await API.put(`/admin/expenses/${id}`, { status });
+    fetchData();
+  };
+
+  const handleEdit = (expense) => {
+    setEditingId(expense._id);
+    setForm({
+      vendor: expense.vendor,
+      amount: expense.amount,
+      date: expense.date.split("T")[0],
+      status: expense.status,
+    });
+  };
+
+  const handleSave = async (id) => {
+    await API.put(`/admin/expenses/${id}`, {
+      ...form,
+      amount: Number(form.amount),
+    });
+
+    setEditingId(null);
+    fetchData();
+  };
+
+  // 🔥 FILTER LOGIC
+  const filteredData =
+    filter === "all"
+      ? data
+      : data.filter((e) => e.status === filter);
+
+  return (
+    <div>
+      <h2>Manage Expenses</h2>
+
+      {/* 🔥 FILTER BUTTONS */}
+      <div style={{ marginBottom: "15px" }}>
+        <button onClick={() => setFilter("all")}>All</button>
+        <button onClick={() => setFilter("pending")}>Pending</button>
+        <button onClick={() => setFilter("approved")}>Approved</button>
+        <button onClick={() => setFilter("rejected")}>Rejected</button>
+      </div>
+
+      <table style={table}>
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Date</th>
+            <th>Vendor</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {filteredData.map((e) => (
+            <tr key={e._id}>
+              
+              {/* USER */}
+              <td>{e.user?.name}</td>
+
+              {/* DATE */}
+              <td>
+                {editingId === e._id ? (
+                  <input
+                    type="date"
+                    value={form.date}
+                    onChange={(ev) =>
+                      setForm({ ...form, date: ev.target.value })
+                    }
+                  />
+                ) : (
+                  new Date(e.date).toLocaleDateString()
+                )}
+              </td>
+
+              {/* VENDOR */}
+              <td>
+                {editingId === e._id ? (
+                  <input
+                    value={form.vendor}
+                    onChange={(ev) =>
+                      setForm({ ...form, vendor: ev.target.value })
+                    }
+                  />
+                ) : (
+                  e.vendor
+                )}
+              </td>
+
+              {/* AMOUNT */}
+              <td>
+                {editingId === e._id ? (
+                  <input
+                    type="number"
+                    value={form.amount}
+                    onChange={(ev) =>
+                      setForm({ ...form, amount: ev.target.value })
+                    }
+                  />
+                ) : (
+                  `₹ ${e.amount}`
+                )}
+              </td>
+
+              {/* STATUS */}
+              <td
+                style={{
+                  color:
+                    e.status === "approved"
+                      ? "green"
+                      : e.status === "rejected"
+                      ? "red"
+                      : "orange",
+                  fontWeight: "bold",
+                }}
+              >
+                {editingId === e._id ? (
+                  <select
+                    value={form.status}
+                    onChange={(ev) =>
+                      setForm({ ...form, status: ev.target.value })
+                    }
+                  >
+                    <option value="pending">Pending</option>
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
+                  </select>
+                ) : (
+                  e.status
+                )}
+              </td>
+
+              {/* ACTIONS */}
+              <td>
+                {editingId === e._id ? (
+                  <>
+                    <button onClick={() => handleSave(e._id)}>Save</button>
+                    <button onClick={() => setEditingId(null)}>Cancel</button>
+                  </>
+                ) : (
+                  <>
+                    <button onClick={() => handleEdit(e)}>Edit</button>
+                    <button onClick={() => updateStatus(e._id, "approved")}>
+                      ✔
+                    </button>
+                    <button onClick={() => updateStatus(e._id, "rejected")}>
+                      ✖
+                    </button>
+                  </>
+                )}
+              </td>
+
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+const table = {
+  width: "100%",
+  borderCollapse: "collapse",
+};
+
+export default AdminExpenses;
