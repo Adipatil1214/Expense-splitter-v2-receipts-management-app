@@ -11,11 +11,13 @@ function Layout({ children }) {
       {/* Sidebar */}
       <div
         style={{
-          width: open ? "200px" : "0px",
+          width: open ? "240px" : "0px",
           overflow: "hidden",
-          transition: "0.3s",
-          background: "#2c3e50",
+          transition: "0.3s ease",
+          background: "linear-gradient(180deg, #1e293b 0%, #0f172a 100%)",
           color: "white",
+          boxShadow: "4px 0 20px rgba(0, 0, 0, 0.15)",
+          zIndex: 100
         }}
       >
         <Sidebar />
@@ -26,32 +28,36 @@ function Layout({ children }) {
         onClick={() => setOpen(!open)}
         style={{
           position: "absolute",
-          top: "10px",
-          left: open ? "200px" : "10px",
+          top: "16px",
+          left: open ? "240px" : "16px",
           transform: "translateX(-50%)",
-          width: "35px",
-          height: "35px",
-          background: "#2c3e50",
-          color: "white",
+          width: "40px",
+          height: "40px",
+          background: "white",
+          color: "#1e293b",
           border: "none",
-          borderRadius: "5px",
+          borderRadius: "10px",
           cursor: "pointer",
-          boxShadow: "2px 2px 5px rgba(0,0,0,0.2)",
-          transition: "0.3s",
+          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+          transition: "0.3s ease",
           zIndex: 1000,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: "18px"
         }}
       >
         ☰
       </button>
 
       {/* Main Area */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", background: "#f8fafc" }}>
 
         {/* ✅ Navbar at TOP */}
         <Navbar />
 
         {/* ✅ Page content BELOW navbar */}
-        <div style={{ padding: "20px", flex: 1 }}>
+        <div style={{ flex: 1, overflow: "auto" }}>
           {children}
         </div>
 

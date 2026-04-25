@@ -1,5 +1,6 @@
 import Expense from "../models/Expense.js";
 import User from "../models/User.js";
+import ApprovedVendor from "../models/ApprovedVendor.js";
 
 export const getDashboard = async (req, res) => {
   try {
@@ -61,5 +62,50 @@ export const updateExpenseStatus = async (req, res) => {
     res.json(expense);
   } catch (err) {
     res.status(500).json({ msg: err.message });
+  }
+};
+// 📋 Get all approved vendors
+export const getApprovedVendors = async (req, res) => {
+  try {
+    const vendors = await ApprovedVendor.find().sort({ createdAt: -1 });
+    res.json(vendors);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// ➕ Add new approved vendor
+export const addApprovedVendor = async (req, res) => {
+  try {
+    const { name } = req.body;
+    
+    if (!name) {
+      return res.status(400).json({ error: "Vendor name is required" });
+    }
+
+    // Check if vendor already exists
+    const existing = await ApprovedVendor.findOne({ name: name.toLowerCase().trim() });
+    if (existing) {
+      return res.status(400).json({ error: "Vendor already exists" });
+    }
+
+    const vendor = await ApprovedVendor.create({
+      name: name.toLowerCase().trim(),
+      addedBy: req.user.id
+    });
+
+    res.json(vendor);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// 🗑️ Delete approved vendor
+export const deleteApprovedVendor = async (req, res) => {
+  try {
+    await ApprovedVendor.findByIdAndDelete(req.params.id);
+    res.json({ message: "Vendor deleted" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };

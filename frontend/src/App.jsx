@@ -9,6 +9,7 @@ import AdminRoute from "./components/AdminRoute";
 import Admin from "./pages/Admin";
 import Home from "./pages/Home";
 import AdminExpenses from "./pages/AdminExpenses";
+import AdminReports from "./pages/AdminReports";
 import Layout from "./components/Layout";
 
 function App() {
@@ -85,6 +86,17 @@ function App() {
             <AdminRoute>
               <Layout>
                 <AdminExpenses />
+              </Layout>
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/reports"
+          element={
+            <AdminRoute>
+              <Layout>
+                <AdminReports />
               </Layout>
             </AdminRoute>
           }

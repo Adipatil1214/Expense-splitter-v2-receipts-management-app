@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import Expense from "../models/Expense.js";
+import ApprovedVendor from "../models/ApprovedVendor.js";
 import { extractText } from "../services/ocrService.js";
 import { parseReceipt } from "../utils/parser.js";
 import { detectCategory } from "../services/categoryService.js";
@@ -26,12 +27,24 @@ export const uploadExpense = async (req, res) => {
     // 🏷️ category detection
     const category = detectCategory(data.vendor);
 
+    // ✅ Check vendor in ApprovedVendor collection
+    let status = "pending";
+    if (data.vendor) {
+      const approvedVendor = await ApprovedVendor.findOne({
+        name: data.vendor.toLowerCase().trim()
+      });
+      if (approvedVendor) {
+        status = "approved";
+      }
+    }
+
     // 💾 save to DB
     const expense = await Expense.create({
       user: req.user.id,
       ...data,
       category,
-      imagePath
+      imagePath,
+      status
     });
 
     res.json(expense);
