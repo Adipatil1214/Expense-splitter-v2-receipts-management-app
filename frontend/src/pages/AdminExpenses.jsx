@@ -7,12 +7,12 @@ function AdminExpenses() {
   const [form, setForm] = useState({});
   const [filter, setFilter] = useState("pending"); // 👈 default filter
   const [viewImage, setViewImage] = useState(null);
-  
+
   // Vendor management state
   const [showVendorModal, setShowVendorModal] = useState(false);
   const [vendors, setVendors] = useState([]);
   const [newVendorName, setNewVendorName] = useState("");
-  
+
   const fetchData = async () => {
     const res = await API.get("/admin/expenses");
     setData(res.data);
@@ -93,9 +93,13 @@ function AdminExpenses() {
         <button onClick={() => setFilter("pending")}>Pending</button>
         <button onClick={() => setFilter("approved")}>Approved</button>
         <button onClick={() => setFilter("rejected")}>Rejected</button>
-        <button 
+        <button
           onClick={() => setShowVendorModal(true)}
-          style={{ marginLeft: "20px", backgroundColor: "#4CAF50", color: "white" }}
+          style={{
+            marginLeft: "20px",
+            backgroundColor: "#4CAF50",
+            color: "white",
+          }}
         >
           + Add Approved Vendor
         </button>
@@ -223,33 +227,27 @@ function AdminExpenses() {
       </table>
       {/* viewing file  */}
       {viewImage && (
-  <div style={overlay} onClick={() => setViewImage(null)}>
-    
-    <div style={modal} onClick={(e) => e.stopPropagation()}>
-      
-      <img
-        src={`http://localhost:5000/${viewImage}`}
-        alt="receipt"
-        style={{ maxWidth: "500px", borderRadius: "10px" }}
-      />
+        <div style={overlay} onClick={() => setViewImage(null)}>
+          <div style={modal} onClick={(e) => e.stopPropagation()}>
 
-      <br /><br />
-
-      <button onClick={() => setViewImage(null)}>
-        Close
-      </button>
-
-    </div>
-
-  </div>
-)}
+            <img
+              src={viewImage}
+              alt="receipt"
+              style={{ maxWidth: "500px", borderRadius: "10px" }}
+            />
+            <br />
+            <br />
+            <button onClick={() => setViewImage(null)}>Close</button>
+          </div>
+        </div>
+      )}
 
       {/* Vendor Management Modal */}
       {showVendorModal && (
         <div style={overlay} onClick={() => setShowVendorModal(false)}>
           <div style={modal} onClick={(e) => e.stopPropagation()}>
             <h3>Manage Approved Vendors</h3>
-            
+
             {/* Add new vendor */}
             <div style={{ marginBottom: "20px" }}>
               <input
@@ -261,14 +259,18 @@ function AdminExpenses() {
               />
               <button onClick={addVendor}>Add</button>
             </div>
-            
+
             {/* Vendor list */}
             <div style={{ maxHeight: "300px", overflowY: "auto" }}>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
                   <tr>
-                    <th style={{ textAlign: "left", padding: "5px" }}>Vendor Name</th>
-                    <th style={{ textAlign: "right", padding: "5px" }}>Action</th>
+                    <th style={{ textAlign: "left", padding: "5px" }}>
+                      Vendor Name
+                    </th>
+                    <th style={{ textAlign: "right", padding: "5px" }}>
+                      Action
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -276,7 +278,7 @@ function AdminExpenses() {
                     <tr key={v._id}>
                       <td style={{ padding: "5px" }}>{v.name}</td>
                       <td style={{ textAlign: "right", padding: "5px" }}>
-                        <button 
+                        <button
                           onClick={() => deleteVendor(v._id)}
                           style={{ backgroundColor: "#ff4444", color: "white" }}
                         >
@@ -289,8 +291,9 @@ function AdminExpenses() {
               </table>
               {vendors.length === 0 && <p>No approved vendors yet.</p>}
             </div>
-            
-            <br /><br />
+
+            <br />
+            <br />
             <button onClick={() => setShowVendorModal(false)}>Close</button>
           </div>
         </div>
@@ -313,13 +316,13 @@ const overlay = {
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-  zIndex: 2000
+  zIndex: 2000,
 };
 
 const modal = {
   background: "white",
   padding: "20px",
   borderRadius: "10px",
-  textAlign: "center"
+  textAlign: "center",
 };
 export default AdminExpenses;
