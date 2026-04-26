@@ -8,13 +8,17 @@ function AdminExpenses() {
   const [data, setData] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState({});
-  const [filter, setFilter] = useState("pending"); // 👈 default filter
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("all");
   const [viewImage, setViewImage] = useState(null);
 
   // Vendor management state
   const [showVendorModal, setShowVendorModal] = useState(false);
   const [vendors, setVendors] = useState([]);
   const [newVendorName, setNewVendorName] = useState("");
+
+  // Get unique categories for filter dropdown
+  const categories = [...new Set(data.map(e => e.category).filter(Boolean))];
 
   const fetchData = async () => {
     const res = await API.get("/admin/expenses");
@@ -138,19 +142,36 @@ function AdminExpenses() {
   };
 
   // 🔥 FILTER LOGIC
-  const filteredData =
-    filter === "all" ? data : data.filter((e) => e.status === filter);
+  const filteredData = data.filter((e) => {
+    const statusMatch = statusFilter === "all" || e.status === statusFilter;
+    const categoryMatch = categoryFilter === "all" || e.category === categoryFilter;
+    return statusMatch && categoryMatch;
+  });
 
   return (
     <div>
       <h2>Manage Expenses</h2>
 
       {/* 🔥 FILTER BUTTONS */}
-      <div style={{ marginBottom: "15px" }}>
-        <button onClick={() => setFilter("all")}>All</button>
-        <button onClick={() => setFilter("pending")}>Pending</button>
-        <button onClick={() => setFilter("approved")}>Approved</button>
-        <button onClick={() => setFilter("rejected")}>Rejected</button>
+      <div style={{ marginBottom: "15px", display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center" }}>
+        <span style={{ fontWeight: "500" }}>Status:</span>
+        <button onClick={() => setStatusFilter("all")} style={statusFilter === "all" ? { background: "#4f46e5" } : {}}>All</button>
+        <button onClick={() => setStatusFilter("pending")} style={statusFilter === "pending" ? { background: "#4f46e5" } : {}}>Pending</button>
+        <button onClick={() => setStatusFilter("approved")} style={statusFilter === "approved" ? { background: "#4f46e5" } : {}}>Approved</button>
+        <button onClick={() => setStatusFilter("rejected")} style={statusFilter === "rejected" ? { background: "#4f46e5" } : {}}>Rejected</button>
+        
+        <span style={{ marginLeft: "20px", fontWeight: "500" }}>Category:</span>
+        <select 
+          value={categoryFilter} 
+          onChange={(e) => setCategoryFilter(e.target.value)}
+          style={{ padding: "8px", borderRadius: "6px" }}
+        >
+          <option value="all">All Categories</option>
+          {categories.map(cat => (
+            <option key={cat} value={cat}>{cat}</option>
+          ))}
+        </select>
+
         <button
           onClick={() => setShowVendorModal(true)}
           style={{
@@ -176,6 +197,7 @@ function AdminExpenses() {
             <th>User</th>
             <th>Date</th>
             <th>Vendor</th>
+            <th>Category</th>
             <th>Amount</th>
             <th>Status</th>
             <th>Actions</th>
@@ -215,6 +237,11 @@ function AdminExpenses() {
                 ) : (
                   e.vendor
                 )}
+              </td>
+
+              {/* CATEGORY */}
+              <td>
+                {e.category || "N/A"}
               </td>
 
               {/* AMOUNT */}
