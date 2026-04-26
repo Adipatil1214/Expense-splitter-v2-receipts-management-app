@@ -5,7 +5,8 @@ import {
   updateExpenseStatus,
   getApprovedVendors,
   addApprovedVendor,
-  deleteApprovedVendor
+  deleteApprovedVendor,
+  deleteExpenseAdmin
 } from "../controllers/adminController.js";
 
 import { protect } from "../middleware/authMiddleware.js";
@@ -21,6 +22,9 @@ router.get("/expenses", protect, isAdmin, getAllExpenses);
 
 // ✅ Approve / Reject (ADMIN ONLY)
 router.put("/expenses/:id", protect, isAdmin, updateExpenseStatus);
+
+// 🗑️ Delete expense (ADMIN ONLY - can delete any)
+router.delete("/expenses/:id", protect, isAdmin, deleteExpenseAdmin);
 
 // 📋 Approved Vendors (ADMIN ONLY)
 router.get("/vendors", protect, isAdmin, getApprovedVendors);

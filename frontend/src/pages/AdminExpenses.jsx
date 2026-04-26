@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
 import API from "../services/api";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+import * as XLSX from "xlsx";
 
 function AdminExpenses() {
   const [data, setData] = useState([]);
@@ -59,6 +62,61 @@ function AdminExpenses() {
     fetchData();
   };
 
+  const deleteExpenseAdmin = async (id) => {
+    if (!confirm("Are you sure you want to delete this expense?")) return;
+    try {
+      await API.delete(`/admin/expenses/${id}`);
+      fetchData();
+    } catch (err) {
+      alert("Failed to delete expense");
+    }
+  };
+
+  // 📊 Export to PDF
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(18);
+    doc.text("Expense Report", 14, 22);
+    doc.setFontSize(10);
+    doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 30);
+
+    const tableData = filteredData.map(e => [
+      e.user?.name || "N/A",
+      e.vendor,
+      `₹ ${e.amount}`,
+      e.category || "N/A",
+      e.status,
+      new Date(e.date).toLocaleDateString()
+    ]);
+
+    doc.autoTable({
+      head: [["User", "Vendor", "Amount", "Category", "Status", "Date"]],
+      body: tableData,
+      startY: 35,
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [99, 102, 241] }
+    });
+
+    doc.save("expense-report.pdf");
+  };
+
+  // 📊 Export to Excel
+  const exportToExcel = () => {
+    const worksheetData = filteredData.map(e => ({
+      "User": e.user?.name || "N/A",
+      "Vendor": e.vendor,
+      "Amount": e.amount,
+      "Category": e.category || "N/A",
+      "Status": e.status,
+      "Date": new Date(e.date).toLocaleDateString()
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(worksheetData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Expenses");
+    XLSX.writeFile(wb, "expense-report.xlsx");
+  };
+
   const handleEdit = (expense) => {
     setEditingId(expense._id);
     setForm({
@@ -102,6 +160,13 @@ function AdminExpenses() {
           }}
         >
           + Add Approved Vendor
+        </button>
+        <span style={{ marginLeft: "20px", color: "#666" }}>|</span>
+        <button onClick={exportToPDF} style={{ backgroundColor: "#dc2626", marginLeft: "10px" }}>
+          📄 Export PDF
+        </button>
+        <button onClick={exportToExcel} style={{ backgroundColor: "#16a34a", marginLeft: "5px" }}>
+          📊 Export Excel
         </button>
       </div>
 
@@ -213,6 +278,12 @@ function AdminExpenses() {
                     </button>
                     <button onClick={() => setViewImage(e.imagePath)}>
                       View
+                    </button>
+                    <button 
+                      onClick={() => deleteExpenseAdmin(e._id)}
+                      style={{ background: "#ef4444", marginLeft: "5px" }}
+                    >
+                      🗑
                     </button>
                   </>
                 )}

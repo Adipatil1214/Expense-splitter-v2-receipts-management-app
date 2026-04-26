@@ -109,3 +109,20 @@ export const deleteApprovedVendor = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+// 🗑️ Delete expense (ADMIN - can delete any)
+export const deleteExpenseAdmin = async (req, res) => {
+  try {
+    const expense = await Expense.findById(req.params.id);
+    
+    if (!expense) {
+      return res.status(404).json({ error: "Expense not found" });
+    }
+
+    await Expense.findByIdAndDelete(req.params.id);
+    res.json({ message: "Expense deleted successfully" });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};

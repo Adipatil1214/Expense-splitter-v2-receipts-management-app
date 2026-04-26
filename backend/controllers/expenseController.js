@@ -71,6 +71,27 @@ export const getExpenses = async (req, res) => {
   }
 };
 
+// 🗑️ Delete expense (user can only delete their own)
+export const deleteExpense = async (req, res) => {
+  try {
+    const expense = await Expense.findOne({
+      _id: req.params.id,
+      user: req.user.id
+    });
+
+    if (!expense) {
+      return res.status(404).json({ error: "Expense not found" });
+    }
+
+    await Expense.findByIdAndDelete(req.params.id);
+    res.json({ message: "Expense deleted successfully" });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
 export const getStats = async (req, res) => {
   try {
     const stats = await Expense.aggregate([

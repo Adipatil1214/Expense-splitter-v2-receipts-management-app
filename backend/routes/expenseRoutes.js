@@ -1,5 +1,5 @@
 import express from "express";
-import { uploadExpense, getExpenses, getStats } from "../controllers/expenseController.js";
+import { uploadExpense, getExpenses, getStats, deleteExpense } from "../controllers/expenseController.js";
 import { protect } from "../middleware/authMiddleware.js";
 import { upload } from "../config/cloudinary.js";
 
@@ -11,5 +11,8 @@ router.get("/stats", protect, getStats);
 
 // get all expenses
 router.get("/", protect, getExpenses);
+
+// delete expense (user can only delete their own)
+router.delete("/:id", protect, deleteExpense);
 
 export default router;
